@@ -7,9 +7,16 @@ app = Flask(__name__)
 
 def update_data():
     """Download price data, format data and train model."""
-    files = download_data(TOKEN, TRAINING_DAYS, REGION, DATA_PROVIDER)
-    format_data(files, DATA_PROVIDER, force_update=True)  # Force update to regenerate data
-    train_model(TIMEFRAME)
+    try:
+        print("🚀 Updating Allora worker: Fetching fresh market data...")
+        files = download_data(TOKEN, TRAINING_DAYS, REGION, DATA_PROVIDER)
+        format_data(files, DATA_PROVIDER, force_update=True)  # Force update to regenerate data
+
+        print("📊 Training Model...")
+        train_model(TIMEFRAME)
+
+    except Exception as e:
+        print(f"❌ Update failed: {e}")
 
 @app.route("/inference/<string:token>")
 def generate_inference(token):
@@ -20,7 +27,11 @@ def generate_inference(token):
 
     try:
         inference = get_inference(token.upper(), TIMEFRAME, REGION, DATA_PROVIDER)
-        return Response(str(inference), status=200)
+        return Response(str(inference), status=200, mimetype='application/json')
+    
+    except FileNotFoundError:
+        return Response(json.dumps({"error": "Model not found. Please update first."}), status=500, mimetype='application/json')
+
     except Exception as e:
         return Response(json.dumps({"error": str(e)}), status=500, mimetype='application/json')
 
@@ -29,10 +40,9 @@ def update():
     """Update data and return status."""
     try:
         update_data()
-        return "0"
-    except Exception:
-        return "1"
-
+        return Response(json.dumps({"status": "success"}), status=200, mimetype='application/json')
+    except Exception as e:
+        return Response(json.dumps({"status": "failed", "error": str(e)}), status=500, mimetype='application/json')
 if __name__ == "__main__":
     update_data()
     app.run(host="0.0.0.0", port=8000)

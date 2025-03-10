@@ -1,6 +1,7 @@
 version: '3.8'
 services:
   inference:
+    restart: always
     container_name: inference
     env_file:
       - .env
@@ -15,8 +16,10 @@ services:
       retries: 12
     volumes:
       - ./inference-data:/app/data
+      - ./models:/app/models
 
   updater:
+    restart: always
     container_name: updater
     build: .
     environment:
@@ -31,6 +34,7 @@ services:
     depends_on:
       inference:
         condition: service_healthy
+        restart: true
 
   worker:
     container_name: worker
@@ -46,3 +50,4 @@ services:
 volumes:
   inference-data:
   worker-data:
+  models:   # Persist trained models
