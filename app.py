@@ -6,11 +6,16 @@ from config import model_file_path, TOKEN, TIMEFRAME, TRAINING_DAYS, REGION, DAT
 app = Flask(__name__)
 
 def update_data():
-    """Download price data, format data and train model."""
+    """Download price data, format data, and train the model."""
     try:
-        print("🚀 Updating Allora worker: Fetching fresh market data...")
-        files = download_data(TOKEN, TRAINING_DAYS, REGION, DATA_PROVIDER)
-        format_data(files, DATA_PROVIDER, force_update=True)  # Force update to regenerate data
+        if MODEL == "kNN" and DATA_PROVIDER == "binance":
+            print("🚀 Updating Allora worker: Fetching fresh market data...")
+            files = download_data(TOKEN, TRAINING_DAYS, REGION, DATA_PROVIDER)
+        else:
+            files = []
+
+        # Force update to regenerate data
+        format_data(files, DATA_PROVIDER, force_update=True)
 
         print("📊 Training Model...")
         train_model(TIMEFRAME)

@@ -15,7 +15,7 @@ from sklearn.neighbors import KNeighborsRegressor  # Import kNN
 from sklearn.model_selection import TimeSeriesSplit, GridSearchCV
 from sklearn.metrics import mean_squared_error, make_scorer
 from updater import download_binance_daily_data, download_binance_current_day_data, download_coingecko_data, download_coingecko_current_day_data
-from config import data_base_path, model_file_path, TOKEN, MODEL, CG_API_KEY
+from config import data_base_path, model_file_path, TOKEN, MODEL, CG_API_KEY, DATA_PROVIDER
 from sklearn.metrics import mean_absolute_error
 
 binance_data_path = os.path.join(data_base_path, "binance")
@@ -235,7 +235,9 @@ def format_data(files, data_provider, force_update=False):
         print("✅ Data is already up to date.")
         return
 
-    print("⏳ Fetching fresh ETHUSDT & BTCUSDT data from Binance...")
+# ✅ If using kNN and Binance, generate the dataset
+if MODEL == "kNN" and DATA_PROVIDER == "binance":
+    print("⏳ Fetching ETHUSDT & BTCUSDT data from Binance...")
 
     # Define the start time (April 1, 2023, 10:00 AM) to current time
     start_time_str = '2023-04-01 10:00:00'
