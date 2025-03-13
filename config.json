@@ -32,7 +32,7 @@
         "topicId": 50,
         "inferenceEntrypointName": "apiAdapter",
         "parameters": {
-          "InferenceEndpoint": "http://source:8000/inference/{Token}",
+          "InferenceEndpoint": "http://inference:8000/inference/{Token}",
           "Token": "BTC"
         }
       }
